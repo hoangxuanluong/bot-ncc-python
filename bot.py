@@ -2,8 +2,13 @@ from flask import Flask, jsonify
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
 
 app = Flask(__name__)
+app.config['PORT'] = os.getenv('PORT')
 
 URL = "https://baomoi.com/xa-hoi.epi"
 HEADERS = {
@@ -69,4 +74,4 @@ def home():
     return 'luong'
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=app.config['PORT'])
