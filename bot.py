@@ -17,7 +17,7 @@ HEADERS = {
 }
 
 def fetch_news():
-    webpage = requests.get(URL, headers=HEADERS)
+    webpage = requests.get(URL, headers=HEADERS, proxies={"http": None, "https": None})
     soup = BeautifulSoup(webpage.content, "html.parser")
     cards = soup.find_all('div', class_='bm-card-content')
 
@@ -74,4 +74,4 @@ def home():
     return 'luong'
 
 if __name__ == '__main__':
-    app.run(debug=True, port=app.config['PORT'])
+    app.run(host='0.0.0.0',debug=True, port=app.config['PORT'], use_reloader=False)
