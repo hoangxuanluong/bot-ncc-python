@@ -1,23 +1,22 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 
-load_dotenv() 
+load_dotenv()
 
 app = Flask(__name__)
 app.config['PORT'] = os.getenv('PORT')
 
-URL = "https://baomoi.com/xa-hoi.epi"
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
     'Accept-Language': 'en-US, en;q=0.5'
 }
 
-def fetch_news():
-    webpage = requests.get(URL, headers=HEADERS, proxies={"http": None, "https": None})
+def fetch_news(url):
+    webpage = requests.get(url, headers=HEADERS, proxies={"http": None, "https": None})
     soup = BeautifulSoup(webpage.content, "html.parser")
     cards = soup.find_all('div', class_='bm-card-content')
 
@@ -55,23 +54,23 @@ def fetch_news():
             publish_time = None
 
         results.append({
-            'publish_time': publish_time.strftime('%Y-%m-%d %H:%M:%S') if publish_time else None,
-            'main_href': main_href,
-            'main_title': main_title,
-            'source_title': source_title
+            'publishDate': publish_time.strftime('%Y-%m-%d %H:%M:%S') if publish_time else None,
+            'url': main_href,
+            'title': main_title,
+            'source': source_title
         })
 
     return results[4:]
 
 @app.route('/api/news', methods=['GET'])
 def get_news():
-    news_data = fetch_news()
+    url = request.args.get('url', 'https://baomoi.com/xa-hoi.epi')  # lấy URL từ query param, nếu không có thì dùng mặc định
+    news_data = fetch_news(url)
     return jsonify(news_data)
 
 @app.route('/', methods=['GET'])
 def home():
-    # news_data = fetch_news()
     return 'luong'
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True, port=app.config['PORT'], use_reloader=False)
+    app.run(host='0.0.0.0', debug=True, port=app.config['PORT'], use_reloader=False)
