@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
 import pytz
+import re
 
-# os.environ['TZ'] = 'Asia/Ho_Chi_Minh'
 vietnam_timezone = pytz.timezone('Asia/Ho_Chi_Minh')
 
 load_dotenv()
@@ -42,20 +42,20 @@ def fetch_news(url):
         time_tag = card.find('time', class_='content-time')
         time_text = time_tag.get_text() if time_tag else None
 
+        publish_time = None
         if time_text:
-            if "phút" in time_text:
+            specific_time_match = re.search(r'\d{2}/\d{2}/\d{4}', time_text)
+            if specific_time_match:
+                publish_time = datetime.strptime(specific_time_match.group(), '%d/%m/%Y')
+                publish_time = vietnam_timezone.localize(publish_time)
+            elif "phút" in time_text:
                 minutes = int(time_text.split()[0])
                 time_delta = timedelta(minutes=minutes)
+                publish_time = datetime.now(vietnam_timezone) - time_delta
             elif "giờ" in time_text:
                 hours = int(time_text.split()[0])
                 time_delta = timedelta(hours=hours)
-            else:
-                time_delta = timedelta()
-
-            current_time = datetime.now(vietnam_timezone)
-            publish_time = current_time - time_delta
-        else:
-            publish_time = None
+                publish_time = datetime.now(vietnam_timezone) - time_delta
 
         results.append({
             'publishDate': publish_time.strftime('%Y-%m-%d %H:%M:%S') if publish_time else None,
@@ -63,12 +63,11 @@ def fetch_news(url):
             'title': main_title,
             'source': source_title
         })
-
     return results[4:]
 
 @app.route('/api/news', methods=['GET'])
 def get_news():
-    url = request.args.get('url', 'https://baomoi.com/xa-hoi.epi')  # lấy URL từ query param, nếu không có thì dùng mặc định
+    url = request.args.get('url', 'https://baomoi.com/xa-hoi.epi') 
     news_data = fetch_news(url)
     return jsonify(news_data)
 
