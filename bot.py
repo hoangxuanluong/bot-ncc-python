@@ -4,6 +4,10 @@ import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import os
+import pytz
+
+# os.environ['TZ'] = 'Asia/Ho_Chi_Minh'
+vietnam_timezone = pytz.timezone('Asia/Ho_Chi_Minh')
 
 load_dotenv()
 
@@ -48,7 +52,7 @@ def fetch_news(url):
             else:
                 time_delta = timedelta()
 
-            current_time = datetime.now()
+            current_time = datetime.now(vietnam_timezone)
             publish_time = current_time - time_delta
         else:
             publish_time = None
