@@ -19,3 +19,9 @@
 - **Python 3.x với Flask**: Xây dựng dịch vụ API crawl dữ liệu.
 - **Java Spring Boot**: Xử lý cronjob và lưu dữ liệu vào database.
 - **Database**: PostgreSQL
+---
+
+## **Hướng dẫn sử dụng**
+
+- Sử dụng `*category` để lấy danh sách các danh mục (category) từ Báo Mới.
+- Sử dụng `*name category` (ví dụ: `*world`, `*society`) để lấy danh sách bài báo tương ứng với category đó.
